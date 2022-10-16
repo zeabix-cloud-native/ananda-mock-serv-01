@@ -35,5 +35,5 @@ func main() {
 	router.POST("/api/profiles", handlers.CreateProfile)
 	router.GET("/api/profiles/:id", handlers.GetProfile)
 	router.GET("/health", health.Health)
-	router.Run("localhost:8080")
+	router.Run("0.0.0.0:8080")
 }
