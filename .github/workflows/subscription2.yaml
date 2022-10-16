@@ -1,0 +1,25 @@
+name: Build & Push Subscription 2
+
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - uses: azure/docker-login@v1
+        with:
+          login-server: anandapocacr.azurecr.io
+          username: ${{ secrets.ACR_USERNAME_SUB2 }}
+          password: ${{ secrets.ACR_PASSWORD_SUB2 }}
+
+      - run: |
+          docker build . -t anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+          docker push anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
