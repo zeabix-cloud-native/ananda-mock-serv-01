@@ -7,6 +7,7 @@ import (
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/zeabix-cloud-native/ananda-mock-serv-01/health"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/profile"
 )
 
@@ -33,5 +34,6 @@ func main() {
 	router := gin.Default()
 	router.POST("/api/profiles", handlers.CreateProfile)
 	router.GET("/api/profiles/:id", handlers.GetProfile)
+	router.GET("/health", health.Health)
 	router.Run("localhost:8080")
 }
