@@ -17,12 +17,14 @@ type Service interface {
 }
 
 type service struct {
-	R ProfileRepository
+	R   ProfileRepository
+	Acc clients.AccountService
 }
 
-func NewProfileService(repo ProfileRepository) Service {
+func NewProfileService(repo ProfileRepository, accService clients.AccountService) Service {
 	return &service{
-		R: repo,
+		R:   repo,
+		Acc: accService,
 	}
 }
 
@@ -33,17 +35,6 @@ func (s *service) CreateProfile(p *ProfileDTO) (*ProfileDTO, error) {
 	}
 
 	return s.SetupAccount(entity.ID)
-
-	/*
-		dto := ProfileDTO{
-			ID:        entity.ID,
-			FirstName: entity.FirstName,
-			LastName:  entity.LastName,
-			Email:     entity.Email,
-		}
-
-		return &dto, nil
-	*/
 }
 
 func (s *service) GetProfile(id uint) (*ProfileDTO, error) {
@@ -61,8 +52,7 @@ func (s *service) GetProfile(id uint) (*ProfileDTO, error) {
 
 	if entity.AccountID != uint(0) {
 		// Get Balance from another service
-		client := clients.NewAccountService("http://localhost:8080")
-		response, err := client.GetBalance(entity.AccountID)
+		response, err := s.Acc.GetBalance(entity.AccountID)
 		if err != nil {
 			return nil, err
 		}
@@ -74,8 +64,7 @@ func (s *service) GetProfile(id uint) (*ProfileDTO, error) {
 }
 
 func (s *service) SetupAccount(id uint) (*ProfileDTO, error) {
-	client := clients.NewAccountService("http://localhost:8080")
-	acc, err := client.CreateAccount(id)
+	acc, err := s.Acc.CreateAccount(id)
 	if err != nil {
 		return nil, err
 	}

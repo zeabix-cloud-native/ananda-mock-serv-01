@@ -2,12 +2,14 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"github.com/gin-gonic/gin"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/balance"
+	"github.com/zeabix-cloud-native/ananda-mock-serv-01/clients"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/health"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/profile"
 )
@@ -22,6 +24,20 @@ func main() {
 		panic(errors.New("MYSQL_CONNECTION_STRING not found"))
 	}
 
+	accApi := os.Getenv("ACCOUNT_API_ENDPOINT")
+	if accApi == "" {
+		log.Warn("ACCOUNT_API_ENDPOINT not presented, use http://localhost:8080")
+		accApi = "http://localhost:8080"
+	}
+
+	port := os.Getenv("SERVICE_PORT")
+	if port == "" {
+		log.Warn("SERVICE_PORT not presented, use 8080 as default")
+		port = "8080"
+	}
+
+	log.Info("Run service with port :%s", port)
+
 	log.Info("Connect to " + dsn)
 	repo, err := profile.NewMySQLProfileRepository(dsn)
 
@@ -29,7 +45,8 @@ func main() {
 		panic(err)
 	}
 
-	s := profile.NewProfileService(repo)
+	accClient := clients.NewAccountService(accApi)
+	s := profile.NewProfileService(repo, accClient)
 	handlers := profile.NewHandlers(s)
 
 	router := gin.Default()
@@ -52,5 +69,5 @@ func main() {
 
 	router.GET("/health", health.Health)
 
-	router.Run("0.0.0.0:8080")
+	router.Run(fmt.Sprintf("0.0.0.0:%s", port))
 }
