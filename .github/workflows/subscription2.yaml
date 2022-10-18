@@ -23,3 +23,5 @@ jobs:
       - run: |
           docker build . -t anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
           docker push anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+          docker tag anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }} anandapocacr.azurecr.io/ananda-rep-serv-01:${{ github.sha }}
+          docker push anandapocacr.azurecr.io/ananda-rep-serv-01:${{ github.sha }}
