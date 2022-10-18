@@ -11,4 +11,5 @@ type Profile struct {
 type ProfileRepository interface {
 	CreateProfile(firstname string, lastname string, email string) (*Profile, error)
 	GetProfile(ID uint) (*Profile, error)
+	UpdateAccount(id uint, accId uint) (*Profile, error)
 }

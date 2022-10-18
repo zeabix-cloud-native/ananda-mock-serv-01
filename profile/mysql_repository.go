@@ -46,3 +46,19 @@ func (r *MySQLProfileRepository) GetProfile(ID uint) (*Profile, error) {
 
 	return &p, nil
 }
+
+func (r *MySQLProfileRepository) UpdateAccount(id uint, accId uint) (*Profile, error) {
+	var p Profile
+	result := r.DB.First(&p, id)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	p.AccountID = accId
+	result = r.DB.Save(&p)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+
+	return &p, nil
+}
