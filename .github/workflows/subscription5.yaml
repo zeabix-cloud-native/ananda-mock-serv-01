@@ -45,7 +45,7 @@ jobs:
           vuln-type: 'os,library'
           severity: 'CRITICAL'    
       - name: Push Images
-        run: docker push anandacacr.azurecr.io/ananda-rep-serv-01:${{ github.sha }}
+        run: docker push anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
   deploy:
     runs-on: ubuntu-latest
     name: Deploy via argoCD
