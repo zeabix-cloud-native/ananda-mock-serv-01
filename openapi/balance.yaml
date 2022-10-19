@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  version: 1.0.0
+  title: Ananda APIM Balance API
+  description: |
+    Balance account APIs
+
+servers:
+  - url: https://ananda-rep-api.z-unified.com
+
+paths:
+  /balance/accounts:
+    post:
+      description: |
+        Create new balance account
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateBalanceAccountRequest'
+      responses:
+        '201':
+          description: Create profile successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/BalanceAccountResponse'
+        '500':
+          description: Internal Server Error
+  
+  /balance/accounts/{id}:
+    get:
+      description: |
+        Get balance account by given ID 
+      parameters:
+        - in: path
+          name: id 
+          description: Balance account ID 
+          required: true
+          schema: 
+            type: number
+          example: 1
+      responses:
+        '200': 
+          description: successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/BalanceAccountResponse'
+        '404':
+          description: Account not found
+        '500':
+          description: Internal Server Error
+  
+  /balance/accounts/{id}/debit:
+    patch:
+      description: Debit money to account
+      parameters:
+        - in: path
+          name: id 
+          description: Balance account id 
+          required: true
+          schema: 
+            type: number
+          example: 1
+      requestBody:
+        content:
+          application/json:
+            schema: 
+              $ref: '#/components/schemas/DebitRequest'
+      responses:
+        '200':
+          description: successfully
+          content:
+            application/json:
+              schema: 
+                $ref: '#components/schemas/BalanceAccountResponse'
+        '404':
+          description: Account not found
+        '500':
+          description: Internal Server Error
+
+components:
+  schemas:
+    CreateBalanceAccountRequest:
+      type: object
+      required:
+        - owner
+      properties:
+        owner:
+          type: number
+          description: ID of owner (in profile system)
+          example: 1
+
+    BalanceAccountResponse:
+      type: object
+      required:
+        - id
+        - owner
+        - balance
+      properties:
+        id: 
+          type: number
+          example: 1
+        owner:
+          type: number
+          example: 3
+        balance: 
+          type: number
+          example: 25000
+
+    DebitRequest:
+      type: object
+      required:
+        - amount
+      properties:
+        amount:
+          type: number
+          minimum: 0
+          example: 10000
