@@ -30,7 +30,7 @@ jobs:
       - name: Login to ACR
         uses: azure/docker-login@v1
         with:
-          login-server: anandaacr.azurecr.io
+          login-server: anandapocacr.azurecr.io
           username: ${{ secrets.ACR_USERNAME_SUB2 }}
           password: ${{ secrets.ACR_PASSWORD_SUB2 }}
       - name: Build Image
