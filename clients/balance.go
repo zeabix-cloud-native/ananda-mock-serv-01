@@ -17,9 +17,10 @@ type AccountService interface {
 
 type accountservice struct {
 	Endpoint string
+	Key      string
 }
 
-func NewAccountService(api string) AccountService {
+func NewAccountService(api string, key string) AccountService {
 	return &accountservice{
 		Endpoint: api,
 	}
@@ -35,7 +36,18 @@ func (s *accountservice) CreateAccount(owner uint) (*balance.BalanceAccountDTO, 
 		return nil, err
 	}
 
-	response, err := http.Post(url, "application/json", bytes.NewBuffer(reqJson))
+	client := http.Client{}
+	req, err := http.NewRequest("POST", url, bytes.NewBuffer(reqJson))
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = http.Header{
+		"Content-Type":              {"application/json"},
+		"Ocp-Apim-Subscription-Key": {s.Key},
+	}
+
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}
@@ -56,7 +68,19 @@ func (s *accountservice) CreateAccount(owner uint) (*balance.BalanceAccountDTO, 
 
 func (s *accountservice) GetBalance(acc_id uint) (*balance.BalanceAccountDTO, error) {
 	url := fmt.Sprintf("%s/%s/%d", s.Endpoint, "balance/accounts", acc_id)
-	response, err := http.Get(url)
+
+	client := http.Client{}
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	req.Header = http.Header{
+		"Content-Type":              {"application/json"},
+		"Ocp-Apim-Subscription-Key": {s.Key},
+	}
+
+	response, err := client.Do(req)
 	if err != nil {
 		return nil, err
 	}

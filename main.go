@@ -35,17 +35,22 @@ func main() {
 		log.Warn("SERVICE_PORT not presented, use 8080 as default")
 		port = "8080"
 	}
+	log.Info(fmt.Sprintf("Run service with port :%s", port))
 
-	log.Info("Run service with port :%s", port)
+	key := os.Getenv("SUBSCRIPTION_KEY")
+	if key == "" {
+		log.Warn("SUBSCRIPTION_KEY not presented, use empty")
+		key = ""
+	}
 
-	log.Info("Connect to " + dsn)
+	log.Info("Connect to DB")
 	repo, err := profile.NewMySQLProfileRepository(dsn)
 
 	if err != nil {
 		panic(err)
 	}
 
-	accClient := clients.NewAccountService(accApi)
+	accClient := clients.NewAccountService(accApi, key)
 	s := profile.NewProfileService(repo, accClient)
 	handlers := profile.NewHandlers(s)
 
