@@ -9,19 +9,64 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  unittest:
+    name: Unit Test
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      
-      - uses: azure/docker-login@v1
+    - name: Checkout
+      uses: actions/checkout@v3
+
+    - name: Setup Golang
+      uses: actions/setup-go@v3
+      with:
+        go-version: '^1.16.0'
+  build:
+    runs-on: ubuntu-latest
+    name: Build & Push Images
+    needs: Unittest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v2
+      - name: Login to ACR
+        uses: azure/docker-login@v1
         with:
-          login-server: anandapocacr.azurecr.io
+          login-server: anandaacr.azurecr.io
           username: ${{ secrets.ACR_USERNAME_SUB2 }}
           password: ${{ secrets.ACR_PASSWORD_SUB2 }}
-
-      - run: |
-          docker build . -t anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
-          docker push anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
-          docker tag anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }} anandapocacr.azurecr.io/ananda-rep-serv-01:${{ github.sha }}
-          docker push anandapocacr.azurecr.io/ananda-rep-serv-01:${{ github.sha }}
+      - name: Build Image
+        run: docker build . -t anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL'    
+      - name: Push Images
+        run: docker push anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy via argoCD
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          repository: "zeabix-cloud-native/ananda-helm"
+          ref: 'develop'
+          token: ${{ secrets.ACCESS_TOKEN }}
+      - name: Update Balance Service image version 
+        run: yq -i e '.image.tag="${{ github.sha }}"' values.yaml
+        working-directory: ./balance-service
+      - name: Update Profile Service image version 
+        run: yq -i e '.image.tag="${{ github.sha }}"' values.yaml
+        working-directory: ./business-domain-service 
+      - name: Commit & Push changes
+        run: |
+          git config --global user.email 'DevOps'
+          git config --global user.name  'devops@zeabix.com'
+          git add .
+          git commit -m "CD deployment with tag ${{ github.sha }}"
+          git push https://${{ secrets.ACCESS_TOKEN }}@github.com/zeabix-cloud-native/ananda-helm.git      
+          
