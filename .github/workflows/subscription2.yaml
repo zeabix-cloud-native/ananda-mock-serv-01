@@ -34,18 +34,18 @@ jobs:
           username: ${{ secrets.ACR_USERNAME_SUB2 }}
           password: ${{ secrets.ACR_PASSWORD_SUB2 }}
       - name: Build Image
-        run: docker build . -t anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+        run: docker build . -t anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
       - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@master
         with:
-          image-ref: anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+          image-ref: anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
           format: 'table'
           exit-code: '1'
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL'    
       - name: Push Images
-        run: docker push anandaacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
+        run: docker push anandapocacr.azurecr.io/ananda-mock-serv-01:${{ github.sha }}
   deploy:
     runs-on: ubuntu-latest
     name: Deploy via argoCD
