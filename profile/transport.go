@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 type Handler interface {
@@ -47,6 +48,7 @@ func (h *handler) GetProfile(c *gin.Context) {
 
 	find, err := h.s.GetProfile(uint(id))
 	if err != nil {
+		log.Error(err.Error())
 		return
 	}
 

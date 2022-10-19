@@ -23,6 +23,7 @@ type accountservice struct {
 func NewAccountService(api string, key string) AccountService {
 	return &accountservice{
 		Endpoint: api,
+		Key:      key,
 	}
 }
 
