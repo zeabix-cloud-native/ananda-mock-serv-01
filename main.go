@@ -72,7 +72,7 @@ func main() {
 
 	router.POST("/balance/accounts", accHandlers.CreateAccountBalance)
 	router.GET("/balance/accounts/:id", accHandlers.GetAccountBalance)
-	router.GET("/balance/owner/:id", accHandlers.GetBalanceByOwner)
+	router.GET("/balance/owners/:id", accHandlers.GetBalanceByOwner)
 	router.PATCH("/balance/accounts/:id/debit", accHandlers.DebitAccountBalance)
 
 	router.GET("/health", health.Health)
