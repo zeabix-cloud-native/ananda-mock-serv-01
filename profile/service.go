@@ -1,6 +1,10 @@
 package profile
 
-import "github.com/zeabix-cloud-native/ananda-mock-serv-01/clients"
+import (
+	"errors"
+
+	"github.com/zeabix-cloud-native/ananda-mock-serv-01/clients"
+)
 
 type ProfileDTO struct {
 	ID        uint   `json:"id,omitempty"`
@@ -21,6 +25,10 @@ type service struct {
 	Acc clients.AccountService
 }
 
+var (
+	ErrProfileNotFound = errors.New("Profile not found")
+)
+
 func NewProfileService(repo ProfileRepository, accService clients.AccountService) Service {
 	return &service{
 		R:   repo,
@@ -40,7 +48,7 @@ func (s *service) CreateProfile(p *ProfileDTO) (*ProfileDTO, error) {
 func (s *service) GetProfile(id uint) (*ProfileDTO, error) {
 	entity, err := s.R.GetProfile(id)
 	if err != nil {
-		return nil, err
+		return nil, ErrProfileNotFound
 	}
 
 	dto := ProfileDTO{
