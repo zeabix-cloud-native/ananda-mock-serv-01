@@ -11,6 +11,7 @@ import (
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/balance"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/clients"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/health"
+	"github.com/zeabix-cloud-native/ananda-mock-serv-01/preference"
 	"github.com/zeabix-cloud-native/ananda-mock-serv-01/profile"
 )
 
@@ -75,6 +76,19 @@ func main() {
 	router.GET("/balance/owners/:id", accHandlers.GetBalanceByOwner)
 	router.PATCH("/balance/accounts/:id/debit", accHandlers.DebitAccountBalance)
 
+	// Preference
+	prefRepo, err := preference.NewMySQLRepository(dsn)
+	if err != nil {
+		panic(err)
+	}
+
+	prefService := preference.NewPreferenceService(prefRepo)
+	prefHandlers := preference.NewHandler(prefService)
+
+	router.POST("/preference/languages", prefHandlers.CreatePreference)
+	router.GET("/preference/profiles/:profileId", prefHandlers.GetPreference)
+
+	// Health check
 	router.GET("/health", health.Health)
 
 	router.Run(fmt.Sprintf("0.0.0.0:%s", port))
