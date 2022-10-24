@@ -14,9 +14,18 @@ type ProfileDTO struct {
 	Balance   uint   `json:"balance"`
 }
 
+type ProfileShallowDTO struct {
+	ID        uint   `json:"id,omitempty`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+	Email     string `json:"email"`
+	AccountID uint   `json:"account-id"`
+}
+
 type Service interface {
 	CreateProfile(p *ProfileDTO) (*ProfileDTO, error)
 	GetProfile(id uint) (*ProfileDTO, error)
+	GetProfileShallow(id uint) (*ProfileShallowDTO, error)
 	SetupAccount(id uint) (*ProfileDTO, error)
 }
 
@@ -66,6 +75,23 @@ func (s *service) GetProfile(id uint) (*ProfileDTO, error) {
 		}
 
 		dto.Balance = response.Balance
+	}
+
+	return &dto, nil
+}
+
+func (s *service) GetProfileShallow(id uint) (*ProfileShallowDTO, error) {
+	entity, err := s.R.GetProfile(id)
+	if err != nil {
+		return nil, ErrProfileNotFound
+	}
+
+	dto := ProfileShallowDTO{
+		ID:        entity.ID,
+		FirstName: entity.FirstName,
+		LastName:  entity.LastName,
+		Email:     entity.Email,
+		AccountID: entity.AccountID,
 	}
 
 	return &dto, nil

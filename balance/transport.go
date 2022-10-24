@@ -10,6 +10,7 @@ import (
 type Handler interface {
 	CreateAccountBalance(c *gin.Context)
 	GetAccountBalance(c *gin.Context)
+	GetBalanceByOwner(c *gin.Context)
 	DebitAccountBalance(c *gin.Context)
 }
 
@@ -51,6 +52,22 @@ func (h *handler) GetAccountBalance(c *gin.Context) {
 	}
 
 	find, err := h.s.Get(uint(id))
+	if err != nil {
+		c.IndentedJSON(http.StatusNotFound, gin.H{})
+		return
+	}
+
+	c.IndentedJSON(http.StatusOK, &find)
+}
+
+func (h *handler) GetBalanceByOwner(c *gin.Context) {
+	id, err := strconv.ParseUint(c.Param("id"), 10, 64)
+	if err != nil {
+		c.IndentedJSON(http.StatusBadRequest, gin.H{})
+		return
+	}
+
+	find, err := h.s.GetByOwner(uint(id))
 	if err != nil {
 		c.IndentedJSON(http.StatusNotFound, gin.H{})
 		return

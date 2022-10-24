@@ -58,6 +58,8 @@ func main() {
 	router.POST("/api/profiles", handlers.CreateProfile)
 	router.GET("/api/profiles/:id", handlers.GetProfile)
 
+	router.GET("/api/v2/profiles/:id", handlers.GetProfileShallow)
+
 	// Balance Account
 
 	accRepo, err := balance.NewMySQLBalanceAccountRepository(dsn)
@@ -70,6 +72,7 @@ func main() {
 
 	router.POST("/balance/accounts", accHandlers.CreateAccountBalance)
 	router.GET("/balance/accounts/:id", accHandlers.GetAccountBalance)
+	router.GET("/balance/owner/:id", accHandlers.GetBalanceByOwner)
 	router.PATCH("/balance/accounts/:id/debit", accHandlers.DebitAccountBalance)
 
 	router.GET("/health", health.Health)

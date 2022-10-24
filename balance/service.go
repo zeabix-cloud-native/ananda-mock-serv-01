@@ -11,6 +11,7 @@ type Service interface {
 	Debit(id uint, amt uint) (*BalanceAccountDTO, error)
 	//Credit(id uint, amount uint) (*BalanceAccountDTO, error)
 	Get(id uint) (*BalanceAccountDTO, error)
+	GetByOwner(id uint) (*BalanceAccountDTO, error)
 }
 
 type service struct {
@@ -34,6 +35,15 @@ func (s *service) CreateBalanceAccount(p *BalanceAccountDTO) (*BalanceAccountDTO
 
 func (s *service) Get(id uint) (*BalanceAccountDTO, error) {
 	entity, err := s.R.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+
+	return entityToDTO(entity), nil
+}
+
+func (s *service) GetByOwner(id uint) (*BalanceAccountDTO, error) {
+	entity, err := s.R.GetByOwner(id)
 	if err != nil {
 		return nil, err
 	}
